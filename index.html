@@ -759,14 +759,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Efeito Parallax
-        document.querySelector('.hero').addEventListener('mousemove', (e) => {
-            const x = e.clientX / window.innerWidth;
-            const y = e.clientY / window.innerHeight;
-            
-            document.querySelector('.hero h1').style.transform = `translate(-${x * 30}px, -${y * 30}px)`;
-            document.querySelector('.hero p').style.transform = `translate(-${x * 20}px, -${y * 20}px)`;
-        });
     </script>
 </body>
 </html>
