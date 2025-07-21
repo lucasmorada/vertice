@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vértice Arquitetura | Reimaginando Espaços</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a1f2b;
+            --secondary: #e8c547;
+            --accent: #3f88c5;
+            --dark: #0d1317;
+            --light: #f4f7f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--primary);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--secondary);
+            position: absolute;
+            pointer-events: none;
+            mix-blend-mode: exclusion;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            position: absolute;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.4s ease, width 0.3s ease, height 0.3s ease;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .nav-toggle {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 101;
+        }
+
+        .hamburger {
+            width: 30px;
+            height: 2px;
+            background: var(--light);
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(13, 19, 23, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            clip-path: circle(0% at 50% 50%);
+            transition: clip-path 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+            z-index: 99;
+        }
+
+        nav ul {
+            list-style: none;
+            text-align: center;
+        }
+
+        nav ul li {
+            margin: 2rem 0;
+        }
+
+        nav ul li a {
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--light);
+            text-decoration: none;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--secondary);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: 8vw;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero h1 span {
+            color: var(--secondary);
+            display: block;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 600px;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 100px;
+            background: var(--light);
+            margin-bottom: 1rem;
+        }
+
+        .scroll-text {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            opacity: 0.7;
+        }
+
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.7;
+        }
+
+        .services {
+            padding: 10vw;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .services-header {
+            margin-bottom: 10vw;
+            overflow: hidden;
+        }
+
+        .services-header h2 {
+            font-size: 4vw;
+            font-weight: 700;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            padding: 2rem;
+            border-radius: 10px;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 31, 43, 0.8) 0%, rgba(62, 136, 197, 0.2) 100%);
+            z-index: 1;
+        }
+
+        .service-card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .service-card h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .service-card p {
+            margin-bottom: 2rem;
+        }
+
+        .service-number {
+            font-size: 8rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.05);
+            position: absolute;
+            bottom: -2rem;
+            right: 1rem;
+            line-height: 1;
+            z-index: 0;
+        }
+
+        .about {
+            padding: 10vw;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5vw;
+        }
+
+        .about-image {
+            position: relative;
+            height: 80vh;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .about-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .about-text h2 {
+            font-size: 4vw;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .about-text p {
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .signature {
+            margin-top: 2rem;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+
+        .projects {
+            padding: 10vw;
+            min-height: 100vh;
+        }
+
+        .projects-header {
+            margin-bottom: 5vw;
+        }
+
+        .projects-header h2 {
+            font-size: 4vw;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .project-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .project-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(13, 19, 23, 0.9) 0%, transparent 100%);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover .project-overlay {
+            transform: translateY(0);
+        }
+
+        .project-overlay h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .contact {
+            padding: 10vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .contact h2 {
+            font-size: 4vw;
+            margin-bottom: 5vw;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5vw;
+        }
+
+        .contact-info h3 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+        }
+
+        .contact-info p {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .social-links a {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--dark);
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--secondary);
+            color: var(--dark);
+            transform: translateY(-5px);
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        .contact-form textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .contact-form button {
+            padding: 1rem 2rem;
+            background: var(--secondary);
+            color: var(--dark);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .contact-form button:hover {
+            background: var(--accent);
+            color: var(--light);
+        }
+
+        footer {
+            padding: 5vw;
+            text-align: center;
+            background: var(--dark);
+        }
+
+        footer p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 10vw;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .about-image {
+                height: 500px;
+                margin-bottom: 5rem;
+            }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-info {
+                margin-bottom: 5rem;
+            }
+
+            nav ul li a {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 15vw;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .services-header h2,
+            .about-text h2,
+            .projects-header h2,
+            .contact h2 {
+                font-size: 2rem;
+            }
+
+            .service-card,
+            .project-card {
+                height: 400px;
+            }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="custom-cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <header>
+        <div class="logo">Vértice</div>
+        <div class="nav-toggle">
+            <div class="hamburger"></div>
+            <div class="hamburger"></div>
+            <div class="hamburger"></div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Serviços</a></li>
+                <li><a href="#about">Sobre</a></li>
+                <li><a href="#projects">Projetos</a></li>
+                <li><a href="#contact">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="canvas-container" id="canvas"></div>
+        <h1>
+            <span>Reimaginando</span>
+            <span>Espaços</span>
+            <span>Humanizados</span>
+        </h1>
+        <p>Na Vértice Arquitetura, transformamos visões em espaços tangíveis. Cada projeto é uma narrativa espacial única, onde a forma encontra a função em perfeita harmonia.</p>
+        <div class="scroll-indicator">
+            <div class="scroll-line"></div>
+            <div class="scroll-text">Explore</div>
+        </div>
+    </section>
+
+    <section class="services" id="services">
+        <div class="services-header">
+            <h2>Nossos Serviços</h2>
+        </div>
+        <div class="services-grid">
+            <div class="service-card" style="background: url('https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7e00b4a2-0c79-4308-98a8-c4fa51289216.png') center/cover;">
+                <div class="service-card-content">
+                    <h3>Design Arquitetônico</h3>
+                    <p>Criação de conceitos únicos que refletem sua identidade enquanto respondem às necessidades funcionais do espaço.</p>
+                </div>
+                <div class="service-number">01</div>
+            </div>
+            <div class="service-card" style="background: url('https://placehold.co/1000x800') center/cover;">
+                <div class="service-card-content">
+                    <h3>Planejamento Urbano</h3>
+                    <p>Visão macro de desenvolvimento urbano com foco em sustentabilidade e qualidade de vida.</p>
+                </div>
+                <div class="service-number">02</div>
+            </div>
+            <div class="service-card" style="background: url('https://placehold.co/1000x800') center/cover;">
+                <div class="service-card-content">
+                    <h3>Interiores Integrados</h3>
+                    <p>Design de interiores em harmonia com a arquitetura, criando ambientes completos e coerentes.</p>
+                </div>
+                <div class="service-number">03</div>
+            </div>
+            <div class="service-card" style="background: url('https://placehold.co/1000x800') center/cover;">
+                <div class="service-card-content">
+                    <h3>Consultoria Sustentável</h3>
+                    <p>Implementação de estratégias ecoeficientes e tecnologias verdes em todos os projetos.</p>
+                </div>
+                <div class="service-number">04</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="about-content">
+            <div class="about-image">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/59b14b8c-7318-4d75-ab8c-014c3a556db3.png" alt="Arquiteto Renato Silva, fundador da Vértice Arquitetura, analisando plantas em seu escritório moderno">
+            </div>
+            <div class="about-text">
+                <h2>Arq. Renato Silva</h2>
+                <p>Fundador e diretor criativo da Vértice Arquitetura, Renato desenvolveu uma abordagem única que combina rigor técnico com sensibilidade artística.</p>
+                <p>Formado pela Universidade de São Paulo com especialização em Arquitetura Sustentável na Delft University of Technology, seus trabalhos já receberam diversos prêmios internacionais.</p>
+                <p>"Acredito que arquitetura deve ser uma experiência sensorial completa, não apenas visual. Cada espaço precisa conversar com quem o habita."</p>
+                <div class="signature">Renato Silva</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="projects" id="projects">
+        <div class="projects-header">
+            <h2>Projetos Recentes</h2>
+        </div>
+        <div class="project-gallery">
+            <div class="project-card">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/80b91b5a-2b8e-4c43-ae41-bb41bea60457.png" alt="Residência contemporânea com grandes panos de vidro e integração com a vegetação local">
+                <div class="project-overlay">
+                    <h3>Casa Corallo</h3>
+                    <p>Residência unifamiliar | São Paulo</p>
+                </div>
+            </div>
+            <div class="project-card">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5a15d1b8-0cf4-476d-b8f1-5e2679ee5b4e.png" alt="Edifício comercial com fachada ventilada e jardins verticais em estrutura metálica">
+                <div class="project-overlay">
+                    <h3>Torre Verde</h3>
+                    <p>Escritórios comerciais | Rio de Janeiro</p>
+                </div>
+            </div>
+            <div class="project-card">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/022b23f5-79d5-4843-8d8b-0862a301235b.png" alt="Complexo cultural com formas orgânicas e espaços públicos integrados">
+                <div class="project-overlay">
+                    <h3>Centro Cultural Maré</h3>
+                    <p>Espaço cultural | Salvador</p>
+                </div>
+            </div>
+            <div class="project-card">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7b93611c-4264-4cbb-a69f-e82f302f7021.png" alt="Interior de restaurante com iluminação cenográfica e materiais naturais">
+                <div class="project-overlay">
+                    <h3>Restaurante Gaia</h3>
+                    <p>Interiores comerciais | Belo Horizonte</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <h2>Transforme Sua Visão</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Vértice Arquitetura</h3>
+                <p>Rua das Formas, 231<br>São Paulo - SP</p>
+                <p>contato@vertice.arq</p>
+                <p>+55 11 99999-9999</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-behance"></i></a>
+                    <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                </div>
+            </div>
+            <div class="contact-form">
+                <input type="text" placeholder="Nome">
+                <input type="email" placeholder="Email">
+                <input type="text" placeholder="Assunto">
+                <textarea placeholder="Sua Mensagem"></textarea>
+                <button>Enviar</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2023 Vértice Arquitetura. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        // Cursor Personalizado
+        const cursor = document.querySelector('.custom-cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(2)';
+                cursor.style.backgroundColor = 'transparent';
+                cursor.style.border = '2px solid ' + getComputedStyle(document.documentElement).getPropertyValue('--secondary');
+                cursorFollower.style.transform = 'scale(0.5)';
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursor.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary');
+                cursor.style.border = 'none';
+                cursorFollower.style.transform = 'scale(1)';
+            });
+        });
+
+        // Menu Mobile
+        const navToggle = document.querySelector('.nav-toggle');
+        const nav = document.querySelector('nav');
+        const hamburger = document.querySelectorAll('.hamburger');
+
+        navToggle.addEventListener('click', () => {
+            nav.classList.toggle('active');
+            
+            if (nav.classList.contains('active')) {
+                hamburger[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                hamburger[1].style.opacity = '0';
+                hamburger[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+                document.body.style.overflow = 'hidden';
+                nav.style.clipPath = 'circle(150% at 50% 50%)';
+            } else {
+                hamburger[0].style.transform = 'rotate(0) translate(0)';
+                hamburger[1].style.opacity = '1';
+                hamburger[2].style.transform = 'rotate(0) translate(0)';
+                document.body.style.overflow = 'auto';
+                nav.style.clipPath = 'circle(0% at 50% 50%)';
+            }
+        });
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (nav.classList.contains('active')) {
+                    nav.classList.remove('active');
+                    hamburger[0].style.transform = 'rotate(0) translate(0)';
+                    hamburger[1].style.opacity = '1';
+                    hamburger[2].style.transform = 'rotate(0) translate(0)';
+                    document.body.style.overflow = 'auto';
+                }
+
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Animação Scroll
+        const scrollElements = document.querySelectorAll('.services-header h2, .about-text h2, .projects-header h2, .contact h2, .service-card, .project-card');
+        
+        const elementInView = (el, offset = 0) => {
+            const elementTop = el.getBoundingClientRect().top;
+            return (
+                elementTop <= ((window.innerHeight || document.documentElement.clientHeight) - offset)
+            );
+        };
+        
+        const displayScrollElement = (element) => {
+            element.classList.add('scrolled');
+        };
+        
+        const hideScrollElement = (element) => {
+            element.classList.remove('scrolled');
+        };
+        
+        const handleScrollAnimation = () => {
+            scrollElements.forEach(el => {
+                if (elementInView(el, 100)) {
+                    displayScrollElement(el);
+                } else {
+                    hideScrollElement(el);
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', () => {
+            handleScrollAnimation();
+        });
+
+        // Background 3D
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas').appendChild(renderer.domElement);
+
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0xE8C547,
+            wireframe: true 
+        });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Efeito Parallax
+        document.querySelector('.hero').addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            document.querySelector('.hero h1').style.transform = `translate(-${x * 30}px, -${y * 30}px)`;
+            document.querySelector('.hero p').style.transform = `translate(-${x * 20}px, -${y * 20}px)`;
+        });
+    </script>
+</body>
+</html>
+
