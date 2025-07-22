@@ -428,6 +428,52 @@
             font-size: 0.9rem;
         }
 
+        .hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 2rem;
+  min-height: 100vh;
+  color: white;
+}
+
+.image-blur-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 50%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center right;
+}
+
+.blur-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  backdrop-filter: blur(25px);
+  background: rgba(0, 0, 0, 0.2); /* leve escurecido opcional */
+}
+
+.hero h1,
+.hero p,
+.scroll-indicator {
+  position: relative;
+  z-index: 2;
+}
+
+
         /* Animations */
         @keyframes float {
             0%, 100% {
@@ -518,18 +564,24 @@
     </header>
 
     <section class="hero" id="home">
-        <div class="canvas-container" id="canvas"></div>
-        <h1>
-            <span>Reimaginando</span>
-            <span>Espaços</span>
-            <span>Humanizados</span>
-        </h1>
-        <p>Na Vértice Arquitetura, transformamos visões em espaços tangíveis. Cada projeto é uma narrativa espacial única, onde a forma encontra a função em perfeita harmonia.</p>
-        <div class="scroll-indicator">
-            <div class="scroll-line"></div>
-            <div class="scroll-text">Explore</div>
-        </div>
-    </section>
+  <div class="image-blur-wrapper">
+    <img src="logo.webp" alt="Imagem arquitetura" class="hero-image" />
+    <div class="blur-overlay"></div>
+  </div>
+
+  <h1>
+    <span>Reimaginando</span>
+    <span>Espaços</span>
+    <span>Humanizados</span>
+  </h1>
+  <p>Na Vértice Arquitetura, transformamos visões em espaços tangíveis. Cada projeto é uma narrativa espacial única, onde a forma encontra a função em perfeita harmonia.</p>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <div class="scroll-text">Explore</div>
+  </div>
+</section>
+
 
     <section class="services" id="services">
         <div class="services-header">
