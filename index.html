@@ -107,36 +107,70 @@
         }
 
         .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0 10%;
-            position: relative;
-            overflow: hidden;
-        }
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding: 80px 5%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #fefefe;
+  overflow: hidden;
+}
 
-        .hero h1 {
-            font-size: 8vw;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: 2rem;
-            position: relative;
-            z-index: 10;
-        }
+.hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
 
-        .hero h1 span {
-            color: var(--secondary);
-            display: block;
-        }
+.hero-text {
+  max-width: 600px;
+  z-index: 2;
+}
 
-        .hero p {
-            font-size: 1.5rem;
-            max-width: 600px;
-            margin-bottom: 3rem;
-            position: relative;
-            z-index: 10;
-        }
+.hero h1 span {
+  display: block;
+  font-size: 4rem;
+  font-weight: bold;
+}
+
+.hero p {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  width: 400px;
+  max-width: 45%;
+  margin-left: 30px;
+}
+
+.hero-image {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+}
+
+.hero-image-blur {
+  position: absolute;
+  left: -50px;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px);
+  z-index: 1;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  pointer-events: none;
+}
+
 
         .scroll-indicator {
             position: absolute;
@@ -564,24 +598,33 @@
     </header>
 
     <section class="hero" id="home">
-  <div class="image-blur-wrapper">
-    <img src="logo.webp" alt="Imagem arquitetura" class="hero-image" />
-    <div class="blur-overlay"></div>
-  </div>
+  <div class="canvas-container" id="canvas"></div>
 
-  <h1>
-    <span>Reimaginando</span>
-    <span>Espaços</span>
-    <span>Humanizados</span>
-  </h1>
-  <p>Na Vértice Arquitetura, transformamos visões em espaços tangíveis. Cada projeto é uma narrativa espacial única, onde a forma encontra a função em perfeita harmonia.</p>
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>
+        <span>Reimaginando</span>
+        <span>Espaços</span>
+        <span>Humanizados</span>
+      </h1>
+      <p>
+        Na Vértice Arquitetura, transformamos visões em espaços tangíveis.
+        Cada projeto é uma narrativa espacial única, onde a forma encontra
+        a função em perfeita harmonia.
+      </p>
+    </div>
+
+    <div class="hero-image-wrapper">
+      <img src="imagem-arquitetura.png" alt="Imagem Arquitetura" class="hero-image" />
+      <div class="hero-image-blur"></div>
+    </div>
+  </div>
 
   <div class="scroll-indicator">
     <div class="scroll-line"></div>
     <div class="scroll-text">Explore</div>
   </div>
 </section>
-
 
     <section class="services" id="services">
         <div class="services-header">
